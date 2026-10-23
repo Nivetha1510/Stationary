@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} — Supplyhive{% endblock %}
+
+{% block content %}
+<section class="container">
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="{% url 'shop' %}">Shop</a> &rsaquo;
+    <a href="{% if product.category.slug == 'office' %}{% url 'shop' %}{% else %}{% url 'category' product.category.slug %}{% endif %}">{{ product.category.title }}</a> &rsaquo;
+    <span>{{ product.name }}</span>
+  </nav>
+
+  <div class="pdp">
+    <div class="pdp__media">
+      <img src="{{ product.image.url }}" alt="{{ product.name }}">
+      <p class="pdp__name">{{ product.name }}</p>
+      <p class="pdp__price">Rs. {{ product.price|floatformat:"-2" }}</p>
+      <p class="pdp__bulk">{{ bulk_note }}</p>
+      {% if bulk_saving > 0 %}<p class="pdp__bulk bill-saving">Save Rs. {{ bulk_saving|floatformat:"-2" }} with a pack of 10</p>{% endif %}
+      <p class="bill-note">Prices exclude {{ gst_rate|floatformat:"-2" }}% GST</p>
+    </div>
+
+    <div class="pdp__info">
+      <h1 class="pdp__heading">Product Description</h1>
+      <h2 class="pdp__title">{{ product.name }}</h2>
+      {% if product.tagline %}<h3 class="pdp__tagline">{{ product.tagline }}</h3>{% endif %}
+      {% if product.description %}<p class="pdp__text">{{ product.description }}</p>{% endif %}
+      {% if features %}
+        <h3 class="pdp__features-title">Key Features:</h3>
+        <ul class="pdp__features">
+          {% for feature in features %}<li>{{ feature }}</li>{% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<section class="container reviews">
+  <h2 class="pdp__heading">Comments &amp; Review</h2>
+  {% for review in reviews %}
+    <article class="review">
+      <h3 class="review__title">{{ forloop.counter }}. {{ review.title }}</h3>
+      <p class="review__rating"><strong>Rating:</strong> <span aria-label="{{ review.rating }} out of 5">{{ review.stars }}</span></p>
+      <p class="review__text">&ldquo;{{ review.comment }}&rdquo;</p>
+    </article>
+  {% empty %}
+    <p class="review__text">No reviews yet.</p>
+  {% endfor %}
+
+  <div class="pdp__actions">
+    <form method="post" action="{% url 'cart_add' product.code %}">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.path }}">
+      <button type="submit" class="btn btn--lg btn--square">Add to Cart</button>
+    </form>
+    <form method="post" action="{% url 'cart_add' product.code %}">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{% url 'billing' %}">
+      <button type="submit" class="btn btn--lg btn--square">Buy Now</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

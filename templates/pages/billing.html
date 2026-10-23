@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Billing Details — Supplyhive{% endblock %}
+
+{% block content %}
+<section class="container">
+  <h1 class="page-title--left">Billing Details</h1>
+
+  <form method="post" action="{% url 'billing' %}">
+    {% csrf_token %}
+    <div class="billing-grid">
+      <div class="billing-form">
+        {% include "partials/field_errors.html" with errors=form.non_field_errors %}
+        <div class="field-grid">
+          <div class="field">
+            <label for="{{ form.customer_name.id_for_label }}">{{ form.customer_name.label }}</label>
+            {{ form.customer_name }}
+            {% include "partials/field_errors.html" with errors=form.customer_name.errors %}
+          </div>
+          <div class="field">
+            <label for="{{ form.street_address.id_for_label }}">{{ form.street_address.label }}</label>
+            {{ form.street_address }}
+            {% include "partials/field_errors.html" with errors=form.street_address.errors %}
+          </div>
+          <div class="field">
+            <label for="{{ form.town_city.id_for_label }}">{{ form.town_city.label }}</label>
+            {{ form.town_city }}
+            {% include "partials/field_errors.html" with errors=form.town_city.errors %}
+          </div>
+          <div class="field">
+            <label for="{{ form.postal_code.id_for_label }}">{{ form.postal_code.label }}</label>
+            {{ form.postal_code }}
+            {% include "partials/field_errors.html" with errors=form.postal_code.errors %}
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="order-box">
+          <h2>Your Order</h2>
+          <div class="order-box__row"><span>Products</span><span>Subtotal</span></div>
+          {% for row in rows %}
+            <div class="order-box__row order-box__row--item">
+              <span>{{ row.product.name }} x {{ row.quantity }}</span><span>Rs.{{ row.total|floatformat:"-2" }}</span>
+            </div>
+          {% empty %}
+            <div class="order-box__row"><span>Your cart is empty</span><span>Rs.0</span></div>
+          {% endfor %}
+          {% if rows %}
+            <div class="order-box__row bill-line"><span>Subtotal</span><span>Rs.{{ bill.subtotal|floatformat:"-2" }}</span></div>
+            {% if bill.discount %}
+              <div class="order-box__row bill-line bill-saving"><span>Bulk offer savings</span><span>&minus;Rs.{{ bill.discount|floatformat:"-2" }}</span></div>
+            {% endif %}
+            <div class="order-box__row bill-line"><span>Taxable amount</span><span>Rs.{{ bill.taxable|floatformat:"-2" }}</span></div>
+            <div class="order-box__row bill-line"><span>CGST ({{ bill.half_rate|floatformat:"-2" }}%)</span><span>Rs.{{ bill.cgst|floatformat:"-2" }}</span></div>
+            <div class="order-box__row bill-line"><span>SGST ({{ bill.half_rate|floatformat:"-2" }}%)</span><span>Rs.{{ bill.sgst|floatformat:"-2" }}</span></div>
+          {% endif %}
+        </div>
+        <div class="order-total"><span>Total</span><span>Rs.{{ bill.total|floatformat:"-2" }}</span></div>
+        {% if bill.discount %}<p class="bill-note bill-saving">You save Rs.{{ bill.discount|floatformat:"-2" }} on this order</p>{% endif %}
+        <p class="bill-note">Prices exclude GST. Seller GSTIN: {{ bill.gstin }}</p>
+
+        <div class="pay-box">
+          {% for method in payment_methods %}
+            <label class="pay-option">
+              <input type="radio" name="payment" value="{{ method.value }}" {% if method.value == selected_payment %}checked{% endif %}>
+              {% include "partials/icons.html" with name=method.icon %}
+              <span>{{ method.label }}</span>
+            </label>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn--pill btn--wide">Place order</button>
+    </div>
+  </form>
+</section>
+{% endblock %}

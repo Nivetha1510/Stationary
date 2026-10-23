@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Payment — Supplyhive{% endblock %}
+
+{% block content %}
+<section class="container">
+  <div class="form-card pay-card" id="payCard" data-mode="{{ mode }}">
+    <h1 class="form-card__title">Pay Rs. {{ order.total|floatformat:"-2" }}</h1>
+    <p class="form-card__note">Order {{ order.order_code }} &middot; {{ method_label }}</p>
+    <p class="pay-card__demo">Demo mode &mdash; no real money is charged.</p>
+
+    {% if is_upi %}
+      <div class="auth-tabs" role="tablist" aria-label="UPI payment options">
+        <a class="auth-tabs__tab {% if mode == 'qr' %}is-active{% endif %}" id="tab-qr" role="tab" href="?mode=qr" data-mode="qr"
+           aria-controls="panel-qr" aria-selected="{% if mode == 'qr' %}true{% else %}false{% endif %}">Scan QR code</a>
+        <a class="auth-tabs__tab {% if mode == 'upi_id' %}is-active{% endif %}" id="tab-upi_id" role="tab" href="?mode=upi_id" data-mode="upi_id"
+           aria-controls="panel-upi_id" aria-selected="{% if mode == 'upi_id' %}true{% else %}false{% endif %}">Enter UPI ID</a>
+      </div>
+
+      <form id="panel-qr" role="tabpanel" aria-labelledby="tab-qr" method="post" data-mode="qr" {% if mode != 'qr' %}hidden{% endif %}>
+        {% csrf_token %}
+        <input type="hidden" name="mode" value="qr">
+        <p class="auth-forgot">Open any UPI app (Google Pay, PhonePe, Paytm, BHIM) and scan to pay Rs. {{ order.total|floatformat:"-2" }}.</p>
+        <div class="pay-qr" role="img" aria-label="UPI payment QR code">{{ qr_svg|safe }}</div>
+        <p class="auth-forgot"><a href="{{ upi_uri }}">On your phone? Open your UPI app</a></p>
+        <div class="form-actions">
+          <button type="submit" class="btn btn--pill btn--lg">I have paid</button>
+        </div>
+      </form>
+
+      <form id="panel-upi_id" role="tabpanel" aria-labelledby="tab-upi_id" method="post" data-mode="upi_id" novalidate {% if mode != 'upi_id' %}hidden{% endif %}>
+        {% csrf_token %}
+        <input type="hidden" name="mode" value="upi_id">
+        {% include "partials/field_errors.html" with errors=upi_form.non_field_errors %}
+        <div class="field-grid auth-single">
+          <div class="field">
+            <label for="{{ upi_form.upi_id.id_for_label }}">{{ upi_form.upi_id.label }}</label>
+            {{ upi_form.upi_id }}
+            {% include "partials/field_errors.html" with errors=upi_form.upi_id.errors %}
+          </div>
+        </div>
+        <p class="auth-forgot">We will send a payment request to this UPI ID. Approve it in your UPI app.</p>
+        <div class="form-actions">
+          <button type="submit" class="btn btn--pill btn--lg">Verify &amp; Pay</button>
+        </div>
+      </form>
+    {% else %}
+      <form id="cardForm" method="post" novalidate autocomplete="on">
+        {% csrf_token %}
+        <input type="hidden" name="mode" value="card">
+        {% include "partials/field_errors.html" with errors=card_form.non_field_errors %}
+        <div class="field-grid field-grid--labelled">
+          <div class="field">
+            <label for="{{ card_form.card_name.id_for_label }}">{{ card_form.card_name.label }}</label>
+            {{ card_form.card_name }}
+            {% include "partials/field_errors.html" with errors=card_form.card_name.errors %}
+          </div>
+          <div class="field">
+            <label for="{{ card_form.card_number.id_for_label }}">{{ card_form.card_number.label }} <span class="pay-brand" id="cardBrand"></span></label>
+            {{ card_form.card_number }}
+            {% include "partials/field_errors.html" with errors=card_form.card_number.errors %}
+          </div>
+          <div class="field">
+            <label for="{{ card_form.expiry.id_for_label }}">{{ card_form.expiry.label }}</label>
+            {{ card_form.expiry }}
+            {% include "partials/field_errors.html" with errors=card_form.expiry.errors %}
+          </div>
+          <div class="field">
+            <label for="{{ card_form.cvv.id_for_label }}">{{ card_form.cvv.label }}</label>
+            {{ card_form.cvv }}
+            {% include "partials/field_errors.html" with errors=card_form.cvv.errors %}
+          </div>
+        </div>
+        <p class="auth-forgot">Your {{ method_label|lower }} details are used only to confirm this payment. The full number and CVV are never stored.</p>
+        <div class="form-actions">
+          <button type="submit" class="btn btn--pill btn--lg">Pay Rs. {{ order.total|floatformat:"-2" }}</button>
+        </div>
+      </form>
+    {% endif %}
+
+    <p class="auth-forgot"><a href="{% url 'billing' %}">Change payment method</a></p>
+  </div>
+</section>
+{% endblock %}

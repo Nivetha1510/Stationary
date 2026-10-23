@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Test Payment — Supplyhive{% endblock %}
+
+{% block content %}
+<section class="container">
+  <div class="form-card pay-card">
+    <h1 class="form-card__title">Test payment (simulated)</h1>
+    <p class="form-card__note">Order {{ order.order_code }} &middot; {{ method_label }} &middot; Rs. {{ order.total|floatformat:"-2" }}</p>
+    <p class="auth-forgot">No real money moves. This stand-in appears only in development when no Razorpay keys are set.</p>
+    <form method="post" action="{% url 'pay_simulate' order.order_code %}">
+      {% csrf_token %}
+      <div class="form-actions pay-card__actions">
+        <button type="submit" name="outcome" value="success" class="btn btn--pill">Simulate successful payment</button>
+        <button type="submit" name="outcome" value="failure" class="btn btn--pill">Simulate failed payment</button>
+      </div>
+    </form>
+    <p class="auth-forgot"><a href="{% url 'billing' %}">Change payment method</a></p>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,129 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Supplyhive{% endblock %}</title>
+  <meta name="description" content="Supplyhive — bulk stationery for classrooms, offices and creative spaces.">
+  <link rel="icon" href="{% static 'img/logo.png' %}">
+  <link rel="preload" as="font" type="font/woff2" href="{% static 'fonts/roboto-latin-400-normal.woff2' %}" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="{% static 'fonts/roboto-latin-700-normal.woff2' %}" crossorigin>
+  <link rel="stylesheet" href="{% static 'css/fonts.css' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="nav">
+      <a class="brand" href="{% url 'home' %}">
+        <img src="{% static 'img/logo.png' %}" alt="Supplyhive logo" class="brand__mark">
+        <span class="brand__name">Supplyhive</span>
+      </a>
+
+      <button class="nav__toggle" id="navToggle" aria-expanded="false" aria-controls="primaryNav" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav class="nav__links" id="primaryNav" aria-label="Primary">
+        <a href="{% url 'home' %}" class="{% if active == 'home' %}is-active{% endif %}">Home</a>
+        <a href="{% url 'shop' %}" class="{% if active == 'shop' %}is-active{% endif %}">Shop</a>
+        <a href="{% url 'about' %}" class="{% if active == 'about' %}is-active{% endif %}">About us</a>
+        <a href="{% url 'contact' %}" class="{% if active == 'contact' %}is-active{% endif %}">Contact</a>
+        {% if user.is_authenticated %}
+          <form method="post" action="{% url 'signout' %}">
+            {% csrf_token %}
+            <button type="submit" class="nav__logout">Logout</button>
+          </form>
+        {% else %}
+          <a href="{% url 'signin' %}" class="{% if active == 'login' %}is-active{% endif %}">Login/Register</a>
+        {% endif %}
+      </nav>
+
+      <form class="search" action="{% url 'search' %}" method="get" role="search">
+        <label class="sr-only" for="siteSearch">Search for Stationery</label>
+        <input id="siteSearch" type="search" name="q" placeholder="Search for Stationery" value="{{ query|default:'' }}">
+        <button type="submit" aria-label="Search">{% include "partials/icons.html" with name="search" %}</button>
+      </form>
+
+      <div class="nav__actions">
+        <a href="{% url 'cart' %}" class="nav__icon" aria-label="Cart">
+          {% include "partials/icons.html" with name="cart" %}
+          {% if cart_count %}<span class="nav__badge">{{ cart_count }}</span>{% endif %}
+        </a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'my_order' %}" class="nav__icon nav__user" aria-label="My account">
+          {% include "partials/icons.html" with name="account" %}
+          <span class="nav__user-name">{{ user.first_name|default:user.email }}</span>
+        </a>
+        {% else %}
+        <a href="{% url 'signin' %}" class="nav__icon" aria-label="Account">
+          {% include "partials/icons.html" with name="account" %}
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  {% if messages %}
+    <div class="flash-wrap">
+      {% for message in messages %}
+        <p class="flash">{{ message }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <main id="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer__brand">
+        <img src="{% static 'img/logo.png' %}" alt="" class="footer__mark">
+        <div>
+          <p class="footer__name">Supplyhive</p>
+          <p class="footer__legal">2025 Supplyhive Limited</p>
+        </div>
+      </div>
+
+      <div class="footer__grid">
+        {% for column in footer_columns %}
+          <div class="footer__col">
+            <h3>{{ column.title }}</h3>
+            <ul>
+              {% for link in column.links %}<li><a href="{% url link.name %}{% if link.anchor %}#{{ link.anchor }}{% endif %}">{{ link.label }}</a></li>{% endfor %}
+            </ul>
+          </div>
+        {% endfor %}
+        <div class="footer__col">
+          <h3>Information</h3>
+          <ul>
+            <li><a href="{% url 'contact' %}#contact-location">Location</a></li>
+            <li><a href="{% url 'contact' %}#contact-email">Email</a></li>
+            <li><a href="#footerSocial">Social Media</a></li>
+          </ul>
+          <div class="footer__social" id="footerSocial">
+            <a href="https://www.instagram.com/accounts/login/" target="_blank" rel="noopener noreferrer" aria-label="Instagram login"><img src="{% static 'img/ic-instagram.png' %}" alt=""></a>
+            <a href="https://www.facebook.com/login/" target="_blank" rel="noopener noreferrer" aria-label="Facebook login"><img src="{% static 'img/ic-facebook.png' %}" alt=""></a>
+            <a href="https://web.whatsapp.com/" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp login"><img src="{% static 'img/ic-whatsapp.png' %}" alt=""></a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer__apps">
+      <div class="container footer__apps-inner">
+        <p>For better experience , download the app now</p>
+        <div class="footer__badges">
+          <a href="{% url 'home' %}"><img src="{% static 'img/badge-googleplay.png' %}" alt="Get it on Google Play"></a>
+          <a href="{% url 'home' %}"><img src="{% static 'img/badge-appstore.png' %}" alt="Download on the App Store"></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

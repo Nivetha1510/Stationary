@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Contact — Supplyhive{% endblock %}
+
+{% block content %}
+<section class="container">
+  <div class="hero-banner">
+    <img src="{% static 'img/hero-contact.jpg' %}" alt="Vintage rotary telephone on a desk">
+  </div>
+  <p class="page-quote">"Your Perfect Stationery Partner Is Just a Message Away."</p>
+
+  <div class="contact-card">
+    <h2 class="contact-card__title">Contact Details</h2>
+    <div class="contact-tiles">
+      <div class="contact-tile" id="contact-location">
+        {% include "partials/icons.html" with name="location" %}
+        <h3>Location</h3>
+        <p>78 Beechwood Ave.<br>Sarasota, FL 34231</p>
+      </div>
+      <div class="contact-tile" id="contact-email">
+        {% include "partials/icons.html" with name="mail" %}
+        <h3>E-mail</h3>
+        <p><a href="mailto:example@gmail.com">example@gmail.com</a><br>
+           <a href="mailto:debra.holt@example.com">debra.holt@example.com</a></p>
+      </div>
+      <div class="contact-tile">
+        {% include "partials/icons.html" with name="phone" %}
+        <h3>Contact</h3>
+        <p><a href="tel:019457896332">019457896332</a><br>
+           <a href="tel:016457896333">016457896333</a></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="map">
+    <img src="{% static 'img/contact-map.jpg' %}" alt="Map showing our delivery region" loading="lazy">
+  </div>
+
+  <form class="form-card form-card--wide" id="write-us" method="post" action="{% url 'contact' %}">
+    {% csrf_token %}
+    <h2 class="form-card__head">Have a List? We&rsquo;ve Got the Stationery&mdash;Contact Us Now!</h2>
+    <p class="form-card__sub">Write Us</p>
+    <p class="form-card__note">We are always happy to be of service to you. Be sure to listen to the prompt to help direct you to the right person.</p>
+
+    {% include "partials/field_errors.html" with errors=form.non_field_errors %}
+    <div class="field-grid field-grid--labelled">
+      <div class="field">
+        <label for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+        {{ form.name }}
+        {% include "partials/field_errors.html" with errors=form.name.errors %}
+      </div>
+      <div class="field">
+        <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+        {{ form.email }}
+        {% include "partials/field_errors.html" with errors=form.email.errors %}
+      </div>
+      <div class="field">
+        <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }}</label>
+        {{ form.phone }}
+        {% include "partials/field_errors.html" with errors=form.phone.errors %}
+      </div>
+      <div class="field">
+        <label for="{{ form.message.id_for_label }}">{{ form.message.label }}</label>
+        {{ form.message }}
+        {% include "partials/field_errors.html" with errors=form.message.errors %}
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn--pill">Send Message</button>
+    </div>
+  </form>
+</section>
+{% endblock %}

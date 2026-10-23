@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}My Order — Supplyhive{% endblock %}
+
+{% block content %}
+<section class="container">
+  {% if not order %}
+    <div class="empty-cart">
+      <p>You have no orders yet.</p>
+      <a class="btn btn--pill" href="{% url 'shop' %}">Continue shopping</a>
+    </div>
+  {% else %}
+  <div class="order-banner">
+    <img src="{% static 'img/banner-order.jpg' %}" alt="Red stationery flat lay">
+  </div>
+
+  <div class="order-table">
+    <div class="cart-row">
+      <p class="cart-head">Product</p>
+      <p class="cart-head">Quantity</p>
+      <p class="cart-head">Unit Price</p>
+      <p class="cart-head">Total Price</p>
+    </div>
+
+    {% for line in order.lines %}
+      <div class="cart-row">
+        <div class="cart-product">
+          <img src="{{ line.image_url }}" alt="{{ line.name }}">
+          <p class="cart-product__name">{{ line.name }}</p>
+          <p class="cart-product__price">Rs.{{ line.unit_price|floatformat:"-2" }}</p>
+        </div>
+        <div>
+          <p class="cart-cell" data-label="Quantity">{{ line.quantity }}</p>
+          <p class="order-note">Delivery excepted by May 1</p>
+          <p class="order-note"><a href="{% url 'tracking' %}">&#11088; Rate and Review the Product</a></p>
+        </div>
+        <p class="cart-cell" data-label="Unit Price">Rs.{{ line.unit_price|floatformat:"-2" }}</p>
+        <p class="cart-cell" data-label="Total Price">Rs.{{ line.total|floatformat:"-2" }}</p>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="bill-summary">
+    <div class="cart-summary__row"><span>Subtotal</span><span>Rs.{{ order.bill.subtotal|floatformat:"-2" }}</span></div>
+    {% if order.bill.discount %}
+      <div class="cart-summary__row bill-saving"><span>Bulk offer savings</span><span>&minus;Rs.{{ order.bill.discount|floatformat:"-2" }}</span></div>
+    {% endif %}
+    {% if order.bill.gst_rate %}
+      <div class="cart-summary__row"><span>Taxable amount</span><span>Rs.{{ order.bill.taxable|floatformat:"-2" }}</span></div>
+      <div class="cart-summary__row"><span>CGST ({{ order.bill.half_rate|floatformat:"-2" }}%)</span><span>Rs.{{ order.bill.cgst|floatformat:"-2" }}</span></div>
+      <div class="cart-summary__row"><span>SGST ({{ order.bill.half_rate|floatformat:"-2" }}%)</span><span>Rs.{{ order.bill.sgst|floatformat:"-2" }}</span></div>
+    {% endif %}
+    <div class="cart-summary__row"><span>Total</span><span>Rs.{{ order.bill.total|floatformat:"-2" }}</span></div>
+    {% if order.bill.discount %}<p class="bill-note bill-saving">You saved Rs.{{ order.bill.discount|floatformat:"-2" }} on this order</p>{% endif %}
+    {% if order.bill.gst_rate %}<p class="bill-note">Seller GSTIN: {{ order.bill.gstin }}</p>{% endif %}
+  </div>
+  <p class="order-note order-note--center">Payment: {{ order.payment_label }}</p>
+  <div class="form-actions">
+    {% if order.pay_url %}<a class="btn btn--pill btn--wide" href="{{ order.pay_url }}">Complete payment</a>{% endif %}
+    <a class="btn btn--pill btn--wide" href="{% url 'tracking' %}">Track this order</a>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

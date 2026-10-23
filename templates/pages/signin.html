@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Login / Register — Supplyhive{% endblock %}
+
+{% block content %}
+<section class="container">
+  <div class="hero-banner">
+    <img src="{% static 'img/hero-signin.jpg' %}" alt="Colourful stacked notebooks">
+  </div>
+  <p class="page-quote">"Your Perfect Stationery Partner Is Just a Message Away."</p>
+
+  <div class="form-card" id="authCard" data-mode="{{ mode }}">
+    <h1 class="form-card__title">Signin</h1>
+
+    <div class="auth-tabs" role="tablist" aria-label="Sign in or register">
+      <a class="auth-tabs__tab {% if mode == 'login' %}is-active{% endif %}" id="tab-login" role="tab"
+         href="?mode=login{% if next %}&amp;next={{ next|urlencode }}{% endif %}" data-mode="login"
+         aria-controls="panel-login" aria-selected="{% if mode == 'login' %}true{% else %}false{% endif %}">Sign in</a>
+      <a class="auth-tabs__tab {% if mode == 'register' %}is-active{% endif %}" id="tab-register" role="tab"
+         href="?mode=register{% if next %}&amp;next={{ next|urlencode }}{% endif %}" data-mode="register"
+         aria-controls="panel-register" aria-selected="{% if mode == 'register' %}true{% else %}false{% endif %}">Register</a>
+    </div>
+
+    <form id="panel-login" role="tabpanel" aria-labelledby="tab-login" method="post" action="{% url 'signin' %}"
+          data-mode="login" novalidate {% if mode != 'login' %}hidden{% endif %}>
+      {% csrf_token %}
+      <input type="hidden" name="mode" value="login">
+      {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+      {% include "partials/field_errors.html" with errors=login_form.non_field_errors %}
+      <div class="field-grid">
+        <div class="field field--center">
+          <label class="sr-only" for="{{ login_form.email.id_for_label }}">Email ID</label>
+          {{ login_form.email }}
+          {% include "partials/field_errors.html" with errors=login_form.email.errors %}
+        </div>
+        <div class="field field--center">
+          <label class="sr-only" for="{{ login_form.password.id_for_label }}">Password</label>
+          <div class="field__control">
+            {{ login_form.password }}
+            <button type="button" class="field__toggle js-password-toggle" aria-label="Show password" hidden>Show</button>
+          </div>
+          {% include "partials/field_errors.html" with errors=login_form.password.errors %}
+        </div>
+      </div>
+      <p class="auth-forgot"><a href="{% url 'password_reset' %}">Forgot password?</a></p>
+      <div class="form-actions">
+        <button type="submit" class="btn btn--pill">Sign in</button>
+      </div>
+    </form>
+
+    <form id="panel-register" role="tabpanel" aria-labelledby="tab-register" method="post" action="{% url 'signin' %}"
+          data-mode="register" novalidate {% if mode != 'register' %}hidden{% endif %}>
+      {% csrf_token %}
+      <input type="hidden" name="mode" value="register">
+      {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+      {% include "partials/field_errors.html" with errors=register_form.non_field_errors %}
+      <div class="field-grid">
+        <div class="field field--center">
+          <label class="sr-only" for="{{ register_form.name.id_for_label }}">Your Name</label>
+          {{ register_form.name }}
+          {% include "partials/field_errors.html" with errors=register_form.name.errors %}
+        </div>
+        <div class="field field--center">
+          <label class="sr-only" for="{{ register_form.email.id_for_label }}">Email ID</label>
+          {{ register_form.email }}
+          {% include "partials/field_errors.html" with errors=register_form.email.errors %}
+        </div>
+        <div class="field field--center">
+          <label class="sr-only" for="{{ register_form.phone.id_for_label }}">Phone Number</label>
+          {{ register_form.phone }}
+          {% include "partials/field_errors.html" with errors=register_form.phone.errors %}
+        </div>
+        <div class="field field--center">
+          <label class="sr-only" for="{{ register_form.password.id_for_label }}">Password</label>
+          <div class="field__control">
+            {{ register_form.password }}
+            <button type="button" class="field__toggle js-password-toggle" aria-label="Show password" hidden>Show</button>
+          </div>
+          {% include "partials/field_errors.html" with errors=register_form.password.errors %}
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn--pill">Register</button>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}

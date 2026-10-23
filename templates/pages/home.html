@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Supplyhive — Essential Stationery, Exceptional Supply{% endblock %}
+
+{% block content %}
+<section class="home-hero">
+  <div class="home-hero__left">
+    <img src="{% static 'img/hero-notebooks.jpg' %}" alt="Stacked notebooks and a stapler">
+  </div>
+
+  <div class="home-hero__mid">
+    <p class="home-hero__badge">Upto 50% off on Bulk Order</p>
+    <div class="home-hero__bags">
+      <img src="{% static 'img/hero-backpack.jpg' %}" alt="Yellow school backpack">
+      <img src="{% static 'img/hero-backpack.jpg' %}" alt="Yellow school backpack">
+    </div>
+  </div>
+
+  <div class="home-hero__right">
+    <img src="{% static 'img/hero-highlighters.jpg' %}" alt="Pastel highlighters on a pink background">
+  </div>
+</section>
+
+<section class="container home-intro">
+  <h1>Essential Stationery, Exceptional Supply</h1>
+  <p>From pens to paper, we deliver quality tools that power classrooms, offices, and creativity.<br>
+     Bulk pricing, reliable service, and everything your workspace needs&mdash;right at your fingertips.</p>
+</section>
+
+<section class="container">
+  <div class="cat-strip">
+    {% for card in category_cards %}
+      <a href="{% url 'category' card.url %}"><img src="{% static card.image %}" alt="{{ card.alt }}"></a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="container highlights">
+  <div class="highlights__text">
+    {% for item in highlights %}
+      <div class="highlights__item">
+        <h2>{{ item.title }}</h2>
+        <p>{{ item.body }}</p>
+      </div>
+    {% endfor %}
+  </div>
+  <div class="highlights__art" aria-hidden="true">
+    <img src="{% static 'img/home-notepad.png' %}" alt="">
+  </div>
+</section>
+
+<section class="container section">
+  <h2 class="section__title section__title--spaced">Featured Product</h2>
+  <div class="product-grid product-grid--home">
+    {% for product in featured %}{% include "partials/product_card.html" %}{% endfor %}
+  </div>
+</section>
+
+<section class="container section">
+  <h2 class="section__title">Trending</h2>
+  <div class="trending-grid">
+    {% for image in trending %}
+      <a href="{% url 'shop' %}"><img src="{{ image.image.url }}" alt="{{ image.caption|default:'Trending stationery set' }}" loading="lazy"></a>
+    {% endfor %}
+  </div>
+</section>
+
+{% if testimonial %}
+<section class="container section testimonial">
+  <h2 class="section__title">Customer Testimonial</h2>
+  <p class="testimonial__lead">{{ testimonial.lead_text }}</p>
+  <img class="testimonial__avatar" src="{{ testimonial.avatar.url }}" alt="{{ testimonial.author_name }}">
+  <p class="testimonial__quote">{{ testimonial.quote }}</p>
+  <p class="testimonial__name">{{ testimonial.author_name }}</p>
+  <p class="testimonial__role">{{ testimonial.author_role }}</p>
+</section>
+{% endif %}
+
+<section class="container section">
+  <h2 class="section__title section__title--spaced">Back to School</h2>
+  <div class="product-grid product-grid--home">
+    {% for product in back_to_school %}{% include "partials/product_card.html" %}{% endfor %}
+  </div>
+</section>
+
+<section class="container section">
+  <h2 class="section__title">The Team</h2>
+  <p class="team-intro">{{ team_intro }}</p>
+  <div class="team-grid">
+    {% for member in team %}
+      <div class="team-card">
+        <img src="{{ member.photo.url }}" alt="{{ member.name }}, {{ member.role }}" loading="lazy">
+        <h3>{{ member.name }}</h3>
+        <p>{{ member.role }}</p>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

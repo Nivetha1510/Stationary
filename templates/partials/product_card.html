@@ -1,0 +1,18 @@
+<article class="card">
+  <a class="card__media" href="{% url 'product_detail' product.code %}">
+    <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+  </a>
+  <div class="card__body">
+    <h3 class="card__title"><a href="{% url 'product_detail' product.code %}">{{ product.name }}</a></h3>
+    <p class="card__stars" aria-label="Rated {{ product.rating }} out of 5">
+      {% for _ in "12345" %}<span aria-hidden="true">&#9733;</span>{% endfor %}
+    </p>
+    <p class="card__price">Rs. {{ product.price|floatformat:"-2" }}</p>
+    <p class="card__offer">{{ product.offer_line }}</p>
+    <form method="post" action="{% url 'cart_add' product.code %}" class="card__form">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <button type="submit" class="btn btn--pill js-add-to-cart">Add to Cart</button>
+    </form>
+  </div>
+</article>

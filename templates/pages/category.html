@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ category.title }} — Supplyhive{% endblock %}
+
+{% block content %}
+<section class="container">
+  <div class="hero-banner">
+    <img src="{% static 'img/hero-shop.jpg' %}" alt="Shopper browsing shelves of files and folders">
+  </div>
+  <p class="page-quote">"Where Ideas Begin &ndash; Shop Smart, Stay Sharp!"</p>
+</section>
+
+<section class="container">
+  <div class="cat-head">
+    <button class="cat-toggle" id="catToggle" aria-expanded="false" aria-controls="catPanel">
+      {% include "partials/icons.html" with name="menu" %}
+      <span>Categories</span>
+    </button>
+    <h1 class="cat-head__title">{{ category.title }}</h1>
+    <span></span>
+  </div>
+
+  <div class="shop-layout">
+    <aside class="shop-sidebar">
+      <nav class="cat-panel" id="catPanel" aria-label="Product categories">
+        <h2 class="cat-panel__title">Categories</h2>
+        {% for item in nav_categories %}
+          {% if item.slug == 'office' %}
+            <a href="{% url 'shop' %}" class="{% if category.slug == item.slug %}is-active{% endif %}">{{ item.nav_title }}</a>
+          {% else %}
+            <a href="{% url 'category' item.slug %}" class="{% if category.slug == item.slug %}is-active{% endif %}">{{ item.nav_title }}</a>
+          {% endif %}
+        {% endfor %}
+      </nav>
+
+      <form class="filter-panel js-price-filter" method="get" action="">
+        <h2 class="filter-panel__title">Filter by Price</h2>
+        {% for range in price_ranges %}
+          <label class="filter-panel__option">
+            <input type="checkbox" name="price" value="{{ range.value }}" {% if range.checked %}checked{% endif %}>
+            <span>{{ range.label }}</span>
+          </label>
+        {% endfor %}
+        <div class="filter-panel__actions">
+          <button type="submit" class="btn btn--pill js-filter-apply">Apply</button>
+          {% if price_filtered %}<a class="filter-panel__clear" href="{{ request.path }}">Clear</a>{% endif %}
+        </div>
+      </form>
+    </aside>
+
+    <div class="shop-main">
+      <p class="result-count">Showing Result 1-{{ result_count }} of {{ result_count }} results</p>
+
+      {% if products %}
+        <div class="product-grid">
+          {% for product in products %}{% include "partials/product_card.html" %}{% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-cart">
+          <p>No products match the selected price range.</p>
+          <a class="btn btn--pill" href="{{ request.path }}">Clear filter</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

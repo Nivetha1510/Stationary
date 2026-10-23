@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}About us — Supplyhive{% endblock %}
+
+{% block content %}
+<section class="container">
+  <div class="hero-banner">
+    <img src="{% static 'img/hero-about.jpg' %}" alt="Leather satchel with a notebook and fountain pen">
+  </div>
+  <p class="page-quote">"Smart Supplies for Bright Futures."</p>
+  <p class="about-lead">We provide quality stationery and school supplies to support learning, creativity, and organization. From
+    classrooms to home desks, we&rsquo;re here to help students and educators stay prepared and inspired.</p>
+
+  <div class="about-tiles">
+    <img src="{% static 'img/about-1.jpg' %}" alt="Red planner with scissors and clips">
+    <img src="{% static 'img/about-2.jpg' %}" alt="Open ruled notebook with pens">
+    <img src="{% static 'img/about-3.jpg' %}" alt="Spiral planner with a pencil">
+  </div>
+</section>
+
+<section class="container about-block">
+  <h2>PEN &amp; PENCIL</h2>
+  <p>At Supplyhive, we believe a great pen is more than just a writing tool&mdash;it&rsquo;s an expression of thought, precision, and personality.
+     From smooth everyday ballpoints to elegant signature pens, we offer reliable writing instruments designed for comfort, style,
+     and performance.</p>
+  <div class="about-block__art">
+    <img src="{% static 'img/about-pens.jpg' %}" alt="A row of ballpoint pens">
+    <img src="{% static 'img/about-pencils.jpg' %}" alt="A row of coloured pencils">
+  </div>
+</section>
+
+<section class="container about-block">
+  <h2>BAGS</h2>
+  <div class="about-block__art">
+    <img src="{% static 'img/about-bag1.jpg' %}" alt="Black leather laptop bag">
+    <img src="{% static 'img/about-bag2.jpg' %}" alt="Brown leather satchel">
+  </div>
+</section>
+
+<section class="container about-block">
+  <h2>ALL STATIONERY</h2>
+  <p>We offer a wide range of stationery essentials, from notebooks, folders, and sticky notes to markers, staplers, and
+     rulers. Each item is chosen for quality, functionality, and style&mdash;perfect for school, office, or creative use.</p>
+  <div class="about-block__art about-block__art--three">
+    <img class="about-block__cutout" src="{% static 'img/home-notepad.png' %}" alt="Spiral notepad with a pen">
+    <img src="{% static 'img/about-sticky.jpg' %}" alt="Yellow sticky note with a red pin">
+    <img src="{% static 'img/about-stapler.jpg' %}" alt="Red stapler">
+  </div>
+</section>
+
+<section class="container section" id="team">
+  <h2 class="section__title">The Team</h2>
+  <p class="team-intro">{{ team_intro }}</p>
+  <div class="team-grid">
+    {% for member in team %}
+      <div class="team-card">
+        <img src="{{ member.photo.url }}" alt="{{ member.name }}, {{ member.role }}" loading="lazy">
+        <h3>{{ member.name }}</h3>
+        <p>{{ member.role }}</p>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Order Tracking — Supplyhive{% endblock %}
+
+{% block content %}
+<section class="container">
+  {% if not order %}
+    <div class="empty-cart">
+      <p>You have no orders to track yet.</p>
+      <a class="btn btn--pill" href="{% url 'shop' %}">Continue shopping</a>
+    </div>
+  {% else %}
+  <div class="order-banner">
+    <img src="{% static 'img/banner-order.jpg' %}" alt="Red stationery flat lay">
+  </div>
+
+  <div class="track-head">
+    <h2>Order ID : {{ order.code }}</h2>
+    <p>Seller : Supplyhive<br>Payment : {{ order.payment_label }}<br>Rs. {{ order.total|floatformat:"-2" }}</p>
+  </div>
+
+  <ol class="timeline">
+    {% for step in steps %}
+      <li class="timeline__item {% if step.done %}is-done{% endif %}">
+        <span class="timeline__dot">{% if step.done %}{% include "partials/icons.html" with name="check" %}{% endif %}</span>
+        {{ step.label }}
+      </li>
+    {% endfor %}
+  </ol>
+
+  <div class="track-summary">
+    <div class="order-box">
+      <h2>Your Order</h2>
+      <div class="order-box__row"><span>Products</span><span>Subtotal</span></div>
+      {% for line in order.lines %}
+        <div class="order-box__row order-box__row--item">
+          <span>{{ line.name }} x {{ line.quantity }}</span><span>Rs.{{ line.total|floatformat:"-2" }}</span>
+        </div>
+      {% endfor %}
+      <div class="order-box__row bill-line"><span>Subtotal</span><span>Rs.{{ order.bill.subtotal|floatformat:"-2" }}</span></div>
+      {% if order.bill.discount %}
+        <div class="order-box__row bill-line bill-saving"><span>Bulk offer savings</span><span>&minus;Rs.{{ order.bill.discount|floatformat:"-2" }}</span></div>
+      {% endif %}
+      {% if order.bill.gst_rate %}
+        <div class="order-box__row bill-line"><span>Taxable amount</span><span>Rs.{{ order.bill.taxable|floatformat:"-2" }}</span></div>
+        <div class="order-box__row bill-line"><span>CGST ({{ order.bill.half_rate|floatformat:"-2" }}%)</span><span>Rs.{{ order.bill.cgst|floatformat:"-2" }}</span></div>
+        <div class="order-box__row bill-line"><span>SGST ({{ order.bill.half_rate|floatformat:"-2" }}%)</span><span>Rs.{{ order.bill.sgst|floatformat:"-2" }}</span></div>
+      {% endif %}
+    </div>
+    <div class="order-total order-total--solid"><span>Total</span><span>Rs.{{ order.total|floatformat:"-2" }}</span></div>
+    {% if order.bill.discount %}<p class="bill-note bill-saving">You saved Rs.{{ order.bill.discount|floatformat:"-2" }} on this order</p>{% endif %}
+    {% if order.bill.gst_rate %}<p class="bill-note">Seller GSTIN: {{ order.bill.gstin }}</p>{% endif %}
+
+    <div class="pay-box">
+      {% for method in payment_methods %}
+        <label class="pay-option">
+          <input type="radio" name="payment" value="{{ method.value }}" {% if method.value == order.payment %}checked{% endif %} onclick="return false;" tabindex="-1">
+          {% include "partials/icons.html" with name=method.icon %}
+          <span>{{ method.label }}</span>
+        </label>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

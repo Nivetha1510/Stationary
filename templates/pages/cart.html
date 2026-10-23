@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}My Cart — Supplyhive{% endblock %}
+
+{% block content %}
+<section class="container">
+  <h1 class="page-title">My Cart</h1>
+
+  {% if rows %}
+    <div class="cart-table">
+      <div class="cart-row">
+        <p class="cart-head">Product</p>
+        <p class="cart-head">Quantity</p>
+        <p class="cart-head">Unit Price</p>
+        <p class="cart-head">Total Price</p>
+      </div>
+
+      {% for row in rows %}
+        <div class="cart-row">
+          <div class="cart-product">
+            <img src="{{ row.product.image.url }}" alt="{{ row.product.name }}">
+            <p class="cart-product__name">{{ row.product.name }}</p>
+            <p class="cart-product__price">Rs.{{ row.unit_price|floatformat:"-2" }}</p>
+            <p class="cart-product__offer">{{ row.bulk_note }}</p>
+            {% if row.savings %}<p class="cart-product__offer bill-saving">You save Rs.{{ row.savings|floatformat:"-2" }}</p>{% endif %}
+          </div>
+
+          <div class="qty">
+            <div class="qty__buttons">
+              <form method="post" action="{% url 'cart_update' row.product.code %}">
+                {% csrf_token %}
+                <button class="is-plus" type="submit" name="action" value="increase" aria-label="Increase quantity">+</button>
+              </form>
+              <form method="post" action="{% url 'cart_update' row.product.code %}">
+                {% csrf_token %}
+                <button class="is-minus" type="submit" name="action" value="decrease" aria-label="Decrease quantity">&minus;</button>
+              </form>
+            </div>
+            <form method="post" action="{% url 'cart_update' row.product.code %}">
+              {% csrf_token %}
+              <label class="sr-only" for="qty-{{ row.product.code }}">Quantity</label>
+              <input id="qty-{{ row.product.code }}" type="number" name="quantity" min="0" value="{{ row.quantity }}" class="js-qty-input">
+            </form>
+          </div>
+
+          <p class="cart-cell" data-label="Unit Price">Rs.{{ row.unit_price|floatformat:"-2" }}</p>
+          <p class="cart-cell" data-label="Total Price">Rs.{{ row.total|floatformat:"-2" }}</p>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="cart-bottom">
+      <div class="cart-summary">
+        <div class="cart-summary__row"><span>Subtotal</span><span>Rs.{{ bill.subtotal|floatformat:"-2" }}</span></div>
+        {% if bill.discount %}
+          <div class="cart-summary__row bill-saving"><span>Bulk offer savings</span><span>&minus;Rs.{{ bill.discount|floatformat:"-2" }}</span></div>
+        {% endif %}
+        <div class="cart-summary__row"><span>Taxable amount</span><span>Rs.{{ bill.taxable|floatformat:"-2" }}</span></div>
+        <div class="cart-summary__row"><span>CGST ({{ bill.half_rate|floatformat:"-2" }}%)</span><span>Rs.{{ bill.cgst|floatformat:"-2" }}</span></div>
+        <div class="cart-summary__row"><span>SGST ({{ bill.half_rate|floatformat:"-2" }}%)</span><span>Rs.{{ bill.sgst|floatformat:"-2" }}</span></div>
+        <div class="cart-summary__row"><span>Total</span><span>Rs.{{ bill.total|floatformat:"-2" }}</span></div>
+        {% if bill.discount %}<p class="bill-note bill-saving">You save Rs.{{ bill.discount|floatformat:"-2" }} on this order</p>{% endif %}
+        <p class="bill-note">Prices exclude GST. Seller GSTIN: {{ bill.gstin }}</p>
+        <a class="btn btn--pill btn--wide" href="{% url 'billing' %}">Proceed to Checkout</a>
+      </div>
+      <div class="cart-bottom__art" aria-hidden="true">
+        <img src="{% static 'img/about-sticky.jpg' %}" alt="">
+      </div>
+    </div>
+  {% else %}
+    <div class="empty-cart">
+      <p>Your cart is empty.</p>
+      <a class="btn btn--pill" href="{% url 'shop' %}">Continue shopping</a>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

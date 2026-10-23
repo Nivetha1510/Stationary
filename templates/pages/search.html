@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Search — Supplyhive{% endblock %}
+
+{% block content %}
+<section class="container">
+  <h1 class="page-title">Search results</h1>
+  {% if query %}
+    <p class="result-count">Showing Result 1-{{ products|length }} of {{ result_count }} results for &ldquo;{{ query }}&rdquo;</p>
+  {% else %}
+    <p class="result-count">Type something in the search bar to find stationery.</p>
+  {% endif %}
+
+  {% if products %}
+    <div class="product-grid">
+      {% for product in products %}{% include "partials/product_card.html" %}{% endfor %}
+    </div>
+  {% elif query %}
+    <div class="empty-cart">
+      <p>No products matched &ldquo;{{ query }}&rdquo;.</p>
+      <a class="btn btn--pill" href="{% url 'shop' %}">Browse the shop</a>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}
