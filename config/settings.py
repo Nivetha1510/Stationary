@@ -4,11 +4,28 @@ import os
 from decimal import Decimal
 from pathlib import Path
 
+import dj_database_url
+from django.core.exceptions import ImproperlyConfigured
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = "django-insecure-supplyhive-stationery-shop-layout-demo-key"
-DEBUG = True
-ALLOWED_HOSTS = ["*"]
+
+def env_list(name):
+    return [item.strip() for item in os.environ.get(name, "").split(",") if item.strip()]
+
+
+# DEBUG defaults to on for local work; set DEBUG=False in production (Vercel).
+DEBUG = os.environ.get("DEBUG", "True").lower() in ("1", "true", "yes", "on")
+
+SECRET_KEY = os.environ.get("SECRET_KEY", "")
+if not SECRET_KEY:
+    if not DEBUG:
+        raise ImproperlyConfigured("Set the SECRET_KEY environment variable when DEBUG is off.")
+    SECRET_KEY = "django-insecure-supplyhive-local-development-key"
+
+# ".vercel.app" covers every Vercel deployment; add custom domains with ALLOWED_HOSTS=a.com,b.com
+ALLOWED_HOSTS = [".vercel.app", "localhost", "127.0.0.1", *env_list("ALLOWED_HOSTS")]
+CSRF_TRUSTED_ORIGINS = ["https://*.vercel.app", *env_list("CSRF_TRUSTED_ORIGINS")]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -22,6 +39,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -51,11 +69,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
+# DATABASE_URL (e.g. the Neon connection string) wins; without it local SQLite is used.
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    "default": dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -73,6 +93,11 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+}
 
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
@@ -101,3 +126,9 @@ GST_RATE = Decimal(os.environ.get("GST_RATE", "18"))
 SELLER_GSTIN = os.environ.get("SELLER_GSTIN", "33ABCDE1234F1Z5")
 
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
+
+if not DEBUG:
+    # Vercel terminates HTTPS and forwards the original scheme in this header.
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
