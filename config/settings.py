@@ -14,8 +14,11 @@ def env_list(name):
     return [item.strip() for item in os.environ.get(name, "").split(",") if item.strip()]
 
 
-# DEBUG defaults to on for local work; set DEBUG=False in production (Vercel).
-DEBUG = os.environ.get("DEBUG", "True").lower() in ("1", "true", "yes", "on")
+# DEBUG is off on Vercel (which sets VERCEL=1) and on locally. An explicit DEBUG=True/False
+# environment variable always wins.
+DEBUG = os.environ.get("DEBUG", "False" if os.environ.get("VERCEL") else "True").lower() in (
+    "1", "true", "yes", "on",
+)
 
 SECRET_KEY = os.environ.get("SECRET_KEY", "")
 if not SECRET_KEY:
